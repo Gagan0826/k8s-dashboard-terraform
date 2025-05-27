@@ -1,0 +1,82 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dashboard-proxy-config
+data:
+  nginx.conf.template: |
+    server {
+      listen 80;
+      location / {
+        proxy_pass http://kubernetes-dashboard.kubernetes-dashboard.svc.cluster.local:9090/;
+        proxy_set_header Authorization "Bearer ${DASHBOARD_TOKEN}";
+      }
+    }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dashboard-proxy-script
+data:
+  start.sh: |
+    #!/bin/sh
+    export DASHBOARD_TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
+    envsubst < /etc/nginx/conf.d/nginx.conf.template > /etc/nginx/conf.d/default.conf
+    nginx -g 'daemon off;'
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dashboard-proxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dashboard-proxy
+  template:
+    metadata:
+      labels:
+        app: dashboard-proxy
+    spec:
+      serviceAccountName: dashboard-readonly
+      containers:
+      - name: nginx
+        image: nginx:1.25
+        command: ["/bin/sh"]
+        args: ["-c", "/app/start.sh"]
+        volumeMounts:
+        - name: nginx-template
+          mountPath: /etc/nginx/conf.d/nginx.conf.template
+          subPath: nginx.conf.template
+        - name: nginx-script
+          mountPath: /app/start.sh
+          subPath: start.sh
+        - name: token-volume
+          mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+          readOnly: true
+      volumes:
+      - name: nginx-template
+        configMap:
+          name: dashboard-proxy-config
+      - name: nginx-script
+        configMap:
+          name: dashboard-proxy-script
+      - name: token-volume
+        projected:
+          sources:
+            - serviceAccountToken:
+                path: token
+                expirationSeconds: 600
+                audience: api
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dashboard-proxy
+spec:
+  selector:
+    app: dashboard-proxy
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: ClusterIP
