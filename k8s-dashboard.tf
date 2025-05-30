@@ -29,18 +29,7 @@ resource "helm_release" "k8s_dashboard" {
       #mode= "api"
       ingress = {
         ingressClassName = "nginx"
-        enabled = true
-        annotations= merge(
-                      local.oauth2_ingress_annotations,
-                      {
-                        "nginx.ingress.kubernetes.io/configuration-snippet" = <<-EOT
-                          proxy_set_header Authorization "Bearer ${var.dashboard_token}";
-                        EOT
-                      }
-                    )
-        #annotations = local.oauth2_ingress_annotations
-        hosts   = local.k8s_dashboard_hostname
-        tls     = { enabled = false }
+        enabled = false
       }
     }
   })
