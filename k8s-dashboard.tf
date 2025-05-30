@@ -60,7 +60,7 @@ resource "kubernetes_cluster_role_binding" "k8s_dashboard_crb" {
   }
   subject {
     kind      = "ServiceAccount"
-    name      =  "kubernetes-dashboard-2-kong"
+    name      =  "kubernetes-dashboard-kong"
     namespace = "default"
   }
 }
