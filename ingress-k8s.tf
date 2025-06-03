@@ -5,7 +5,7 @@ resource "kubernetes_ingress_v1" "dashboard_proxy_ingress" {
     annotations = {
       # nginx.ingress.kubernetes.io/auth-url              = "https://kubernetes.dashboard.com/oauth2/auth"
       # nginx.ingress.kubernetes.io/auth-signin           = "https://kubernetes.dashboard.com/oauth2/start"
-      "nginx.ingress.kubernetes.io/auth-response-headers" = "Authorization,X-Auth-Request-User,X-Auth-Request-Email"
+      "nginx.ingress.kubernetes.io/auth-response-headers" = "X-Auth-Request-User,X-Auth-Request-Email"
       # nginx.ingress.kubernetes.io/backend-protocol      = "HTTP"
     }
   }
