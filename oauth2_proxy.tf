@@ -24,28 +24,34 @@ config:
   clientID: ""
   clientSecret: ""
   extraArgs:
-    redirect-url: http://apache.endpoint.com/oauth2/callback
+    redirect-url: http://kubernetes.dashboard.com/oauth2/callback
+
+alphaConfig:
+  injectRequestHeaders:
+    Authorization:
+      value: "Bearer YOUR_STATIC_TOKEN"
+
 ingress:
   enabled: true
-  hosts: [${join(",",local.oauth2_hosts)}]
+  hosts: [${join(",", local.oauth2_hosts)}]
   path: /oauth2
   tls:
-    - hosts: [${join(",",local.oauth2_hosts)}]
+    - hosts: [${join(",", local.oauth2_hosts)}]
 
 authenticatedEmailsFile:
   enabled: true
   restricted_access: |-
     ${join("\n    ", sort(local.oauth2_allowed_users))}
 EOF
-
 }
+
 
 locals {
   oauth2_hosts = concat(["apache.endpoint.com","kubernetes.dashboard.com"])
   oauth2_allowed_users = var.oauth2_allowed_users
   oauth2_proxy_values = sensitive(data.template_file.oauth2_proxy.rendered)
   oauth2_ingress_annotations = {
-    "nginx.ingress.kubernetes.io/auth-response-headers" = "X-Auth-Request-User,X-Auth-Request-Email"
+    "nginx.ingress.kubernetes.io/auth-response-headers" = "Authorization,X-Auth-Request-User,X-Auth-Request-Email"
     # "nginx.ingress.kubernetes.io/auth-signin"           = "http://apache.endpoint.com/oauth2/start?rd=$escaped_request_uri"
     # "nginx.ingress.kubernetes.io/auth-url"              = "http://apache.endpoint.com/oauth2/auth"
     #Remove SSL-related annotations
@@ -59,6 +65,6 @@ variable "oauth2_allowed_users" {
   description = "List of allowed users for OAuth2 authentication"
   type        = list(string)
   default     = [
-    "gaganbrgrirish16@gmail.com",
+    "gagan@gmail.com",
   ]
 }
