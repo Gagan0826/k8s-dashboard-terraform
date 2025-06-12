@@ -1,5 +1,5 @@
 resource "helm_release" "k8s_dashboard" {
-  name          = "kubernetes-dashboard"
+  name          = "kubernetes-dashboard-test"
   count         =  1
   repository    = "https://kubernetes.github.io/dashboard/"
   chart         = "kubernetes-dashboard"
@@ -60,11 +60,11 @@ resource "kubernetes_cluster_role_binding" "k8s_dashboard_crb" {
   }
   subject {
     kind      = "ServiceAccount"
-    name      =  "kubernetes-dashboard-kong"
+    name      =  "kubernetes-dashboard-test-kong"
     namespace = "default"
   }
 }
 
 locals {
-  k8s_dashboard_hostname = ["kubernetes.dashboard.com"]
+  k8s_dashboard_hostname = ["kubernetes-test.dashboard.com"]
   }

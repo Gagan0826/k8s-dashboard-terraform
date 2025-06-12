@@ -47,7 +47,7 @@ EOF
 
 
 locals {
-  oauth2_hosts = concat(["apache.endpoint.com","kubernetes.dashboard.com"])
+  oauth2_hosts = concat(["apache.endpoint.com","kubernetes-test.dashboard.com"])
   oauth2_allowed_users = var.oauth2_allowed_users
   oauth2_proxy_values = sensitive(data.template_file.oauth2_proxy.rendered)
   oauth2_ingress_annotations = {

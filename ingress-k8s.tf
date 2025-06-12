@@ -14,7 +14,7 @@ resource "kubernetes_ingress_v1" "dashboard_proxy_ingress" {
     ingress_class_name = "nginx"
 
     rule {
-      host = "kubernetes.dashboard.com"
+      host = "kubernetes-test.dashboard.com"
 
       http {
         path {
@@ -23,7 +23,7 @@ resource "kubernetes_ingress_v1" "dashboard_proxy_ingress" {
 
           backend {
             service {
-              name = "nginx-dashboard-proxy"
+              name = "nginx-k8s-dashboard-test-proxy-svc"
               port {
                 number = 8080
               }
@@ -32,9 +32,8 @@ resource "kubernetes_ingress_v1" "dashboard_proxy_ingress" {
         }
       }
     }
-    # tls {
-    #   hosts      = ["dashboard.example.com"]
-    #   secret_name = "dashboard-tls"
-    # }
+    tls {
+      hosts      = ["kubernetes-test.dashboard.com"]
+    }
   }
 }
